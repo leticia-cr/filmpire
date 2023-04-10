@@ -1,5 +1,7 @@
 import { makeStyles } from "@mui/styles";
 
+const drawerWidth = 240;
+
 export default makeStyles((theme) => ({
   toolbar: {
     height: "80px",
@@ -17,6 +19,22 @@ export default makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       //para devices
       display: "none",
+    },
+  },
+  drawer: {
+    [theme.breakpoints.up("sm")]: {
+      //para devices
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+  },
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  linkButton: {
+    "&:hover": {
+      color: "white !important",
+      textDecoration: "none",
     },
   },
 }));
