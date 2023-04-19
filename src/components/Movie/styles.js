@@ -2,12 +2,12 @@ import { makeStyles } from "@mui/styles";
 
 export default makeStyles((theme) => ({
   movie: {
-    padding: "10px",
+    padding: "5px 0",
   },
   title: {
     color: theme.palette.text.primary,
     textOverflow: "ellipsis",
-    width: "200px",
+    width: "150px",
     overflow: "hidden",
     whiteSpace: "nowrap",
     marginTop: "10px",
@@ -28,7 +28,7 @@ export default makeStyles((theme) => ({
   },
   image: {
     borderRadius: "20px",
-    height: "300px",
+    height: "250px",
     marginBottom: "10px",
     "&:hover": {
       transform: "scale(1.05)",
