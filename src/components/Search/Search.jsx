@@ -11,12 +11,15 @@ export default function Search() {
   const classes = useStyles();
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       dispatch(searchMovie(query));
     }
   };
+
+  if (location.pathname !== "/") return null; //search just appears in the home
 
   return (
     <div className={classes.searchContainer}>

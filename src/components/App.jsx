@@ -26,7 +26,7 @@ export default function App() {
           </Route>
         </Switch>
         <Switch>
-          <Route exact path="/">
+          <Route exact path={["/", "/approved"]}>
             <Movies />
           </Route>
         </Switch>

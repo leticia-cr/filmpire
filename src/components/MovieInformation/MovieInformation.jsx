@@ -97,10 +97,7 @@ export default function MovieInformation() {
           </Box>
           <Typography variant="h6" align="center" gutterBottom>
             {" "}
-            {data?.runtime}min{" "}
-            {data?.spoken_languages.length > 0
-              ? `/${data?.spoken_languages[0].name}`
-              : ""}
+            {data?.runtime}min | Language: {data?.spoken_languages[0].name}
           </Typography>
         </Grid>
         <Grid item className={classes.genresContainer}>
@@ -193,7 +190,7 @@ export default function MovieInformation() {
               </ButtonGroup>
             </Grid>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="medium" variant="outlined">
+              <ButtonGroup size="small" variant="outlined">
                 <Button
                   onClick={addToFavorites}
                   endIcon={
