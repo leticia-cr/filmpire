@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, CircularProgress, Grid, Typography } from "@mui/material";
 import { useHistory, useParams } from "react-router-dom";
-import { Movie as MovieIcon, ArrowBack } from "@mui/icons-material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import {
@@ -9,14 +8,14 @@ import {
   useGetMoviesByActorIdQuery,
 } from "../../services/TMDB";
 import useStyles from "./styles";
-import MovieList from "../MovieList/MovieList";
+import { MovieList, Pagination } from "..";
 
 export default function Actors() {
   const history = useHistory();
   const { id } = useParams();
   const { data, isFetching, error } = useGetActorQuery(id);
   const classes = useStyles();
-  const page = 1;
+  const [page, setPage] = useState(1);
   const { data: movies } = useGetMoviesByActorIdQuery({ id, page });
 
   if (isFetching) {
@@ -78,7 +77,10 @@ export default function Actors() {
             >
               IMDB
             </Button>
-            <Button startIcon={<ArrowBack />} onClick={() => history.goBack()}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => history.goBack()}
+            >
               Back
             </Button>
           </Box>
@@ -89,6 +91,11 @@ export default function Actors() {
           Movies
         </Typography>
         {movies && <MovieList movies={movies} numberOfMovies={12} />}
+        <Pagination
+          currentPage={page}
+          setPage={setPage}
+          totalPages={data.total_pages}
+        />
       </Box>
     </>
   );
