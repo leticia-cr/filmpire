@@ -13,7 +13,7 @@ export default makeStyles((theme) => ({
   poster: {
     borderRadius: "20px",
     boxShadow: "0.5em 1em 1em rgb(64, 64, 70)",
-    width: "80%",
+    width: "90%",
     [theme.breakpoints.down("md")]: {
       margin: "0 auto !imporatant",
       width: "50%",
@@ -52,8 +52,12 @@ export default makeStyles((theme) => ({
     borderRadius: "10px",
   },
   buttonsContainer: {
-    flexDirection: "column",
+    display: "flex",
+    justifyContent: "space-between",
     width: "100%",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+    },
   },
   modal: {
     display: "flex",

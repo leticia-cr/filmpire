@@ -115,6 +115,7 @@ export default function MovieInformation() {
                 src={genreIcons[genre.name.toLowerCase()]}
                 className={classes.genreImage}
                 height={30}
+                style={{ marginRight: "4px" }}
               />
               <Typography color="textPrimary" variant="subtitle1">
                 {genre?.name}
@@ -165,7 +166,7 @@ export default function MovieInformation() {
         <Grid item container style={{ marginTop: "2rem" }}>
           <div className={classes.buttonsContainer}>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="small" variant="outline">
+              <ButtonGroup size="small" variant="outlined">
                 <Button
                   target="_blank"
                   rel="noopener noreferrer"
@@ -192,7 +193,7 @@ export default function MovieInformation() {
               </ButtonGroup>
             </Grid>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="medium" variant="outline">
+              <ButtonGroup size="medium" variant="outlined">
                 <Button
                   onClick={addToFavorites}
                   endIcon={
