@@ -31,7 +31,7 @@ export default makeStyles((theme) => ({
     justifyContent: "space-around",
     flexWrap: "wrap",
   },
-  genreImagem: {
+  genreImage: {
     filter: theme.palette.mode === "dark" && "invert(1)",
     marginRigth: "10px",
   },
