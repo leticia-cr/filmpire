@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Typography,
@@ -7,8 +7,8 @@ import {
   Grid,
   Box,
   CircularProgress,
+  useMediaQuery,
   Rating,
-  DialogContent,
 } from "@mui/material";
 import {
   Movie as MovieIcon,
@@ -24,41 +24,48 @@ import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
-import { selectGenreOrCategory } from "../../feature/currentGenreOrCategory";
-import useStyles from "./styles";
 import {
-  useGetListQuery,
   useGetMovieQuery,
   useGetRecommendationsQuery,
+  useGetListQuery,
 } from "../../services/TMDB";
+import { selectGenreOrCategory } from "../../feature/currentGenreOrCategory";
 import genreIcons from "../../assets/genres";
 import { MovieList } from "..";
+import useStyles from "./styles";
 
-export default function MovieInformation() {
+const MovieInformation = () => {
   const { user } = useSelector((state) => state.user);
-  const { id } = useParams(); //access to id
-  const classes = useStyles();
-  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const classes = useStyles();
+  const isMobile = useMediaQuery("(max-width:600px)");
 
-  const { data, isFetching, error } = useGetMovieQuery(id); //access to information about a specific movie
-  const { data: favoriteMovies } = useGetListQuery({
+  const { data, isFetching, error } = useGetMovieQuery(id);
+  const { data: favoriteMovies, refetch: refetchFavorites } = useGetListQuery({
     listName: "favorite/movies",
-    accoutnId: user.id,
+    accountId: user.id,
     sessionId: localStorage.getItem("session_id"),
     page: 1,
   });
-  const { data: watchlistMovies } = useGetListQuery({
-    listName: "watchlist/movies",
-    accoutnId: user.id,
-    sessionId: localStorage.getItem("session_id"),
-    page: 1,
-  });
+  const { data: watchlistMovies, refetch: refetchWatchlisted } =
+    useGetListQuery({
+      listName: "watchlist/movies",
+      accountId: user.id,
+      sessionId: localStorage.getItem("session_id"),
+      page: 1,
+    });
   const { data: recommendations, isFetching: isRecommendationsFetching } =
     useGetRecommendationsQuery({ list: "/recommendations", movie_id: id });
 
   const [isMovieFavorited, setIsMovieFavorited] = useState(false);
   const [isMovieWatchlisted, setIsMovieWatchlisted] = useState(false);
+
+  useEffect(() => {
+    refetchWatchlisted();
+    refetchFavorites();
+  }, []);
 
   useEffect(() => {
     setIsMovieFavorited(
@@ -75,34 +82,46 @@ export default function MovieInformation() {
   const addToFavorites = async () => {
     await axios.post(
       `https://api.themoviedb.org/3/account/${user.id}/favorite?api_key=${
-        process.env.REACT_APP_TMDB_KEY
+        process.env.REACT_APP_API_KEY
       }&session_id=${localStorage.getItem("session_id")}`,
-      { media_type: "movie", media_id: id, favorite: !isMovieFavorited }
+      {
+        media_type: "movie",
+        media_id: id,
+        favorite: !isMovieFavorited,
+      }
     );
+
     setIsMovieFavorited((prev) => !prev);
   };
 
   const addToWatchlist = async () => {
     await axios.post(
       `https://api.themoviedb.org/3/account/${user.id}/watchlist?api_key=${
-        process.env.REACT_APP_TMDB_KEY
+        process.env.REACT_APP_API_KEY
       }&session_id=${localStorage.getItem("session_id")}`,
-      { media_type: "movie", media_id: id, watchlist: !isMovieWatchlisted }
+      {
+        media_type: "movie",
+        media_id: id,
+        watchlist: !isMovieWatchlisted,
+      }
     );
+
     setIsMovieWatchlisted((prev) => !prev);
   };
 
-  if (isFetching) {
+  const date = new Date(data?.release_date).toDateString();
+
+  if (isFetching || isRecommendationsFetching) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center">
-        <CircularProgress size="8rem" />
+      <Box display="flex" justifyContent="center" alignContent="center">
+        <CircularProgress size="9rem" />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center">
+      <Box display="flex" justifyContent="center" alignContent="center">
         <Link to="/">Something has gone wrong - Go back</Link>
       </Box>
     );
@@ -113,8 +132,8 @@ export default function MovieInformation() {
       <Grid item sm={12} lg={4}>
         <img
           className={classes.poster}
-          src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
           alt={data?.title}
+          src={`https://image.tmdb.org/t/p/w500/${data?.poster_path}`}
         />
       </Grid>
       <Grid item container direction="column" lg={7}>
@@ -122,41 +141,43 @@ export default function MovieInformation() {
           {data?.title} ({data.release_date.split("-")[0]})
         </Typography>
         <Typography variant="h5" align="center" gutterBottom>
-          {data?.tagline}{" "}
-          {/* ?. - not sure if everyone will have a certain parameter */}
+          {data?.tagline}
         </Typography>
         <Grid item className={classes.containerSpaceAround}>
           <Box display="flex" align="center">
-            <Rating readOnly value={data.vote_average / 2} />
+            <Rating name="read-only" value={data?.vote_average / 2} readOnly />
             <Typography
               variant="subtitle1"
               gutterBottom
               style={{ marginLeft: "10px" }}
             >
-              {data?.vote_average.toFixed(2)} /10
+              {data?.vote_average} / 10
             </Typography>
           </Box>
           <Typography variant="h6" align="center" gutterBottom>
-            {" "}
-            {data?.runtime}min | Language: {data?.spoken_languages[0].name}
+            {data?.runtime}min / <span>{date.slice(4)}</span>{" "}
+            <span>
+              {data?.spoken_languages.length > 0
+                ? `/ ${data?.spoken_languages[0].name}`
+                : null}
+            </span>
           </Typography>
         </Grid>
         <Grid item className={classes.genresContainer}>
-          {data?.genres?.map((genre) => (
+          {data?.genres.map((genre, i) => (
             <Link
               className={classes.links}
-              key={genre.name}
               to="/"
-              onClick={() => dispatch(selectGenreOrCategory(genre.id))}
+              onClick={() => dispatch(selectGenreOrCategory(genre.id, 1))}
+              key={i}
             >
               <img
                 src={genreIcons[genre.name.toLowerCase()]}
                 className={classes.genreImage}
                 height={30}
-                style={{ marginRight: "4px" }}
               />
               <Typography color="textPrimary" variant="subtitle1">
-                {genre?.name}
+                {genre.name}
               </Typography>
             </Link>
           ))}
@@ -172,8 +193,8 @@ export default function MovieInformation() {
         </Typography>
         <Grid item container spacing={2}>
           {data &&
-            data.credits?.cast
-              ?.map(
+            data.credits.cast
+              .map(
                 (character, i) =>
                   character.profile_path && (
                     <Grid
@@ -191,7 +212,7 @@ export default function MovieInformation() {
                         alt={character.name}
                       />
                       <Typography color="textPrimary">
-                        {character?.name}
+                        {character.name ? character.name : "Unknown"}
                       </Typography>
                       <Typography color="textSecondary">
                         {character.character.split("/")[0]}
@@ -203,15 +224,24 @@ export default function MovieInformation() {
         </Grid>
         <Grid item container style={{ marginTop: "2rem" }}>
           <div className={classes.buttonsContainer}>
-            <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="small" variant="outlined">
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              className={classes.buttonsContainer}
+              style={{ marginBottom: isMobile && "2rem" }}
+            >
+              <ButtonGroup
+                size={isMobile ? "small" : "medium"}
+                variant="outlined"
+              >
                 <Button
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={data?.homepage}
+                  href={`${data?.homepage}`}
                   endIcon={<Language />}
                 >
-                  Website
+                  Website{" "}
                 </Button>
                 <Button
                   target="_blank"
@@ -231,7 +261,7 @@ export default function MovieInformation() {
               </ButtonGroup>
             </Grid>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size="small" variant="outlined">
+              <ButtonGroup size={isMobile ? "small" : "medium"}>
                 <Button
                   onClick={addToFavorites}
                   endIcon={
@@ -244,16 +274,15 @@ export default function MovieInformation() {
                   onClick={addToWatchlist}
                   endIcon={isMovieWatchlisted ? <Remove /> : <PlusOne />}
                 >
-                  Watchlist
+                  Watchlist{" "}
                 </Button>
                 <Button
                   endIcon={<ArrowBack />}
                   sx={{ borderColor: "primary.main" }}
                 >
                   <Typography
-                    style={{ textDecoration: "none" }}
-                    component={Link}
                     to="/"
+                    component={Link}
                     color="inherit"
                     variant="subtitle2"
                   >
@@ -272,7 +301,7 @@ export default function MovieInformation() {
         {recommendations ? (
           <MovieList movies={recommendations} numberOfMovies={12} />
         ) : (
-          <Box>Sorry, nothing was found. </Box>
+          <Box>Sorry nothing was found</Box>
         )}
       </Box>
       <Modal
@@ -281,19 +310,19 @@ export default function MovieInformation() {
         open={open}
         onClose={() => setOpen(false)}
       >
-        <DialogContent>
-          {data?.videos?.results?.length > 0 && (
-            <iframe
-              autoPlay
-              className={classes.videos}
-              frameBorder="0"
-              title="Trailer"
-              src={`https://www.youtube.com/embed/${data.videos.results[0].key}`}
-              allow="autoplay"
-            />
-          )}
-        </DialogContent>
+        {data.videos.results.length > 0 && (
+          <iframe
+            autoPlay
+            className={classes.video}
+            frameBorder="0"
+            title="Video Player"
+            src={`https://www.youtube.com/embed/${data.videos.results[0].key}`}
+            allow="autoplay"
+          />
+        )}
       </Modal>
     </Grid>
   );
-}
+};
+
+export default MovieInformation;
