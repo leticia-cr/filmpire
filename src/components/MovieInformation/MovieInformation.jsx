@@ -7,9 +7,7 @@ import {
   Grid,
   Box,
   CircularProgress,
-  useMediaQuery,
   Rating,
-  formControlClasses,
   DialogContent,
 } from "@mui/material";
 import {
