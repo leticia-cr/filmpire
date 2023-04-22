@@ -231,10 +231,7 @@ const MovieInformation = () => {
               className={classes.buttonsContainer}
               style={{ marginBottom: isMobile && "2rem" }}
             >
-              <ButtonGroup
-                size={isMobile ? "small" : "medium"}
-                variant="outlined"
-              >
+              <ButtonGroup size="small" variant="outlined">
                 <Button
                   target="_blank"
                   rel="noopener noreferrer"
@@ -261,7 +258,7 @@ const MovieInformation = () => {
               </ButtonGroup>
             </Grid>
             <Grid item xs={12} sm={6} className={classes.buttonsContainer}>
-              <ButtonGroup size={isMobile ? "small" : "medium"}>
+              <ButtonGroup size="small">
                 <Button
                   onClick={addToFavorites}
                   endIcon={
